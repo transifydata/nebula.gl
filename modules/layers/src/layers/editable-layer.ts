@@ -112,7 +112,8 @@ export default abstract class EditableLayer<
   }
 
   _onanyclick({ srcEvent }: any) {
-    const screenCoords = this.getScreenCoords(srcEvent) as [number, number];
+    const ret = this.getScreenCoords(srcEvent);
+    const screenCoords = ret.screenCoords as [number, number];
     const mapCoords = this.getMapCoords(screenCoords);
 
     const picks = this.getPicks(screenCoords);
@@ -121,6 +122,7 @@ export default abstract class EditableLayer<
       mapCoords,
       screenCoords,
       picks,
+      stop_id: ret.stop_id || undefined,
       sourceEvent: srcEvent,
     });
   }
@@ -130,7 +132,8 @@ export default abstract class EditableLayer<
   }
 
   _onpanstart(event: any) {
-    const screenCoords = this.getScreenCoords(event.srcEvent) as [number, number];
+    const ret = this.getScreenCoords(event.srcEvent);
+    const screenCoords = ret.screenCoords as [number, number];
     const mapCoords = this.getMapCoords(screenCoords);
     const picks = this.getPicks(screenCoords);
 
@@ -147,6 +150,7 @@ export default abstract class EditableLayer<
       picks,
       screenCoords,
       mapCoords,
+      stop_id: ret.stop_id || undefined,
       pointerDownScreenCoords: screenCoords,
       pointerDownMapCoords: mapCoords,
       cancelPan: event.stopImmediatePropagation,
@@ -156,14 +160,12 @@ export default abstract class EditableLayer<
 
   _onpanmove(event: any) {
     const { srcEvent } = event;
-    const screenCoords = this.getScreenCoords(srcEvent) as [number, number];
+    const ret = this.getScreenCoords(srcEvent);
+    const screenCoords = ret.screenCoords as [number, number]; //TODO:karen maybe add logic so that if snapped replace map coords too
     const mapCoords = this.getMapCoords(screenCoords);
 
-    const {
-      pointerDownPicks,
-      pointerDownScreenCoords,
-      pointerDownMapCoords,
-    } = this.state._editableLayerState;
+    const { pointerDownPicks, pointerDownScreenCoords, pointerDownMapCoords } =
+      this.state._editableLayerState;
 
     const picks = this.getPicks(screenCoords);
 
@@ -171,6 +173,7 @@ export default abstract class EditableLayer<
       screenCoords,
       mapCoords,
       picks,
+      stop_id: ret.stop_id || undefined,
       pointerDownPicks,
       pointerDownScreenCoords,
       pointerDownMapCoords,
@@ -185,14 +188,12 @@ export default abstract class EditableLayer<
   }
 
   _onpanend({ srcEvent }: any) {
-    const screenCoords = this.getScreenCoords(srcEvent) as [number, number];
+    const ret = this.getScreenCoords(srcEvent);
+    const screenCoords = ret.screenCoords as [number, number];
     const mapCoords = this.getMapCoords(screenCoords);
 
-    const {
-      pointerDownPicks,
-      pointerDownScreenCoords,
-      pointerDownMapCoords,
-    } = this.state._editableLayerState;
+    const { pointerDownPicks, pointerDownScreenCoords, pointerDownMapCoords } =
+      this.state._editableLayerState;
 
     const picks = this.getPicks(screenCoords);
 
@@ -200,6 +201,7 @@ export default abstract class EditableLayer<
       picks,
       screenCoords,
       mapCoords,
+      stop_id: ret.stop_id || undefined,
       pointerDownPicks,
       pointerDownScreenCoords,
       pointerDownMapCoords,
@@ -215,17 +217,20 @@ export default abstract class EditableLayer<
       },
     });
   }
+  //TODO:karen add the stopid (not mapcoords yet, don't really need it) to somewhere so we can push it to branches
+  // first add the stuff from json to db, then run query to make sure it exists ^
+  // stop requires lon lat, agency, name, stop_id
+  // thenfrom stop list make sure every stop pair exists
+  // if not the create the relevant stops -> should this be in front or backend?
 
   _onpointermove(event: any) {
     const { srcEvent } = event;
-    const screenCoords = this.getScreenCoords(srcEvent) as [number, number];
+    const ret = this.getScreenCoords(srcEvent);
+    const screenCoords = ret.screenCoords as [number, number];
     const mapCoords = this.getMapCoords(screenCoords);
 
-    const {
-      pointerDownPicks,
-      pointerDownScreenCoords,
-      pointerDownMapCoords,
-    } = this.state._editableLayerState;
+    const { pointerDownPicks, pointerDownScreenCoords, pointerDownMapCoords } =
+      this.state._editableLayerState;
 
     const picks = this.getPicks(screenCoords);
 
@@ -233,6 +238,7 @@ export default abstract class EditableLayer<
       screenCoords,
       mapCoords,
       picks,
+      stop_id: ret.stop_id || undefined,
       pointerDownPicks,
       pointerDownScreenCoords,
       pointerDownMapCoords,
@@ -251,13 +257,15 @@ export default abstract class EditableLayer<
     });
   }
 
-  getScreenCoords(pointerEvent: any): Position {
-    return [
-      pointerEvent.clientX -
-        (this.context.gl.canvas as HTMLCanvasElement).getBoundingClientRect().left,
-      pointerEvent.clientY -
-        (this.context.gl.canvas as HTMLCanvasElement).getBoundingClientRect().top,
-    ];
+  getScreenCoords(pointerEvent: any): { screenCoords: Position; stop_id?: string } {
+    return {
+      screenCoords: [
+        pointerEvent.clientX -
+          (this.context.gl.canvas as HTMLCanvasElement).getBoundingClientRect().left,
+        pointerEvent.clientY -
+          (this.context.gl.canvas as HTMLCanvasElement).getBoundingClientRect().top,
+      ],
+    };
   }
 
   getMapCoords(screenCoords: Position): Position {

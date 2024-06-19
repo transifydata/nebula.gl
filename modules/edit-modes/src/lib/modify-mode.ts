@@ -157,6 +157,7 @@ export class ModifyMode extends GeoJsonEditMode {
             positionIndexes,
             position: pickedExistingHandle.geometry.coordinates,
           },
+          stop_id: event.stop_id,
         });
       }
     } else if (pickedIntermediateHandle) {
@@ -181,6 +182,7 @@ export class ModifyMode extends GeoJsonEditMode {
               positionIndexes,
               position: pickedIntermediateHandle.geometry.coordinates,
             },
+            stop_id: event.stop_id,
           });
         }
       }
@@ -236,6 +238,7 @@ export class ModifyMode extends GeoJsonEditMode {
         positionIndexes: editHandleProperties.positionIndexes,
         position: event.mapCoords,
       },
+      stop_id: event.stop_id,
     });
   }
 
@@ -267,6 +270,7 @@ export class ModifyMode extends GeoJsonEditMode {
           positionIndexes: editHandleProperties.positionIndexes,
           position: event.mapCoords,
         },
+        stop_id: event.stop_id,
       });
     }
   }

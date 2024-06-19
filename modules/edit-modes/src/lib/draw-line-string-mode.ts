@@ -52,7 +52,7 @@ export class DrawLineStringMode extends GeoJsonEditMode {
 
       const editAction = this.getAddFeatureAction(lineStringToAdd, props.data);
       if (editAction) {
-        props.onEdit(editAction);
+        props.onEdit({ ...editAction, stop_id: event.stop_id });
       }
     } else if (positionAdded) {
       // new tentative point
@@ -63,6 +63,7 @@ export class DrawLineStringMode extends GeoJsonEditMode {
         editContext: {
           position: event.mapCoords,
         },
+        stop_id: event.stop_id,
       });
     }
   }
@@ -79,7 +80,7 @@ export class DrawLineStringMode extends GeoJsonEditMode {
         this.resetClickSequence();
         const editAction = this.getAddFeatureAction(lineStringToAdd, props.data);
         if (editAction) {
-          props.onEdit(editAction);
+          props.onEdit(editAction); // TODO:karen need to see if snaps here
         }
       }
     } else if (key === 'Escape') {

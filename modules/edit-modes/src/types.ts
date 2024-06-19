@@ -7,6 +7,7 @@ export type EditAction<TData> = {
   updatedData: TData;
   editType: string;
   editContext: any;
+  stop_id?: string; // indicates which stop id snapped to, if any
 };
 
 // Represents an object "picked" from the screen. This usually reflects an object under the cursor
@@ -32,6 +33,7 @@ export type BasePointerEvent = {
   picks: Pick[];
   screenCoords: ScreenCoordinates;
   mapCoords: Position;
+  stop_id?: string;
   sourceEvent: any;
 };
 
